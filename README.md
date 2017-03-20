@@ -3,7 +3,7 @@ orchestrator-agent
 
 MySQL topology agent (daemon)
 
-**orchestrator-agent** is a sub-project of [orchestrator](https://github.com/outbrain/orchestrator).
+**orchestrator-agent** is a sub-project of [orchestrator](https://github.com/github/orchestrator).
 It is a service that runs on MySQL hosts and communicates with *orchestrator*.
 
 **orchestrator-agent** is capable of proving operating system, file system and LVM information to *orchestrator*, as well

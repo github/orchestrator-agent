@@ -28,11 +28,11 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/github/orchestrator-agent/go/agent"
+	"github.com/github/orchestrator-agent/go/config"
+	"github.com/github/orchestrator-agent/go/osagent"
 	"github.com/go-martini/martini"
 	"github.com/martini-contrib/render"
-	"github.com/outbrain/orchestrator-agent/go/agent"
-	"github.com/outbrain/orchestrator-agent/go/config"
-	"github.com/outbrain/orchestrator-agent/go/osagent"
 )
 
 type HttpAPI struct{}

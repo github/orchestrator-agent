@@ -27,9 +27,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/github/orchestrator-agent/go/config"
+	"github.com/github/orchestrator-agent/go/inst"
 	"github.com/outbrain/golib/log"
-	"github.com/outbrain/orchestrator-agent/go/config"
-	"github.com/outbrain/orchestrator-agent/go/inst"
 )
 
 const (

@@ -11,8 +11,8 @@ import (
 	"syscall"
 	"testing"
 
-	"github.com/outbrain/orchestrator-agent/go/config"
-	"github.com/outbrain/orchestrator-agent/go/ssl"
+	"github.com/github/orchestrator-agent/go/config"
+	"github.com/github/orchestrator-agent/go/ssl"
 )
 
 func TestHasString(t *testing.T) {
