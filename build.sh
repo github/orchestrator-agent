@@ -86,11 +86,11 @@ function oinstall() {
 }
 
 function package() {
-  local target builddir prefix packages
+  local target builddir prefix packages arch
   target="$1"
   arch="$2"
-  prefix="$3"
   builddir="$3"
+  prefix="$4"
 
   cd $TOPDIR
 
