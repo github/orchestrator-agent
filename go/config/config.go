@@ -32,6 +32,7 @@ type Configuration struct {
 	AvailableLocalSnapshotHostsCommand string            // Command which returns list of hosts (one host per line) with available snapshots in local datacenter
 	AvailableSnapshotHostsCommand      string            // Command which returns list of hosts (one host per line) with available snapshots in any datacenter
 	SnapshotVolumesFilter              string            // text pattern filtering agent logical volumes that are valid snapshots
+	MySQLConfigFileLocation            string            // Path to my.cnf (default: /etc/my.cnf)
 	MySQLDatadirCommand                string            // command expected to present with @@datadir
 	MySQLPortCommand                   string            // command expected to present with @@port
 	MySQLDeleteDatadirContentCommand   string            // command which deletes all content from MySQL datadir (does not remvoe directory itself)
@@ -75,6 +76,7 @@ func NewConfiguration() *Configuration {
 		AvailableLocalSnapshotHostsCommand: "",
 		AvailableSnapshotHostsCommand:      "",
 		SnapshotVolumesFilter:              "",
+		MySQLConfigFileLocation:            "/etc/my.cnf",
 		MySQLDatadirCommand:                "",
 		MySQLPortCommand:                   "",
 		MySQLDeleteDatadirContentCommand:   "",
