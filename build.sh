@@ -86,10 +86,11 @@ function oinstall() {
 }
 
 function package() {
-  local target builddir prefix packages
+  local target builddir prefix packages arch
   target="$1"
-  builddir="$2"
-  prefix="$3"
+  arch="$2"
+  builddir="$3"
+  prefix="$4"
 
   cd $TOPDIR
 
@@ -102,19 +103,14 @@ function package() {
 
       echo "Creating Distro full packages"
       fpm -v "${RELEASE_VERSION}" --epoch 1 -f -s dir -t rpm -n orchestrator-agent -C $builddir/orchestrator-agent --prefix=/ .
-      fpm -v "${RELEASE_VERSION}" --epoch 1 -f -s dir -t deb -n orchestrator-agent -C $builddir/orchestrator-agent --prefix=/ --deb-no-default-config-files .
+      fpm -v "${RELEASE_VERSION}" --epoch 1 -f -s dir -t deb -a "$arch" -n orchestrator-agent -C $builddir/orchestrator-agent --prefix=/ --deb-no-default-config-files .
 
       cd $TOPDIR
-      # rpm packaging -- executable only
-      echo "Creating Distro cli packages"
-      fpm -v "${RELEASE_VERSION}" --epoch 1  -f -s dir -t rpm -n orchestrator-agent-cli -C $builddir/orchestrator-agent-cli --prefix=/ .
-      fpm -v "${RELEASE_VERSION}" --epoch 1  -f -s dir -t deb -n orchestrator-agent-cli -C $builddir/orchestrator-agent-cli --prefix=/ --deb-no-default-config-files .
       ;;
     'darwin')
       echo "Creating Darwin full Package"
       tar -C $builddir/orchestrator-agent -czf $TOPDIR/orchestrator-agent-"${RELEASE_VERSION}"-$target-$arch.tar.gz ./
-      echo "Creating Darwin cli Package"
-      tar -C $builddir/orchestrator-agent-cli -czf $TOPDIR/orchestrator-agent-cli-"${RELEASE_VERSION}"-$target-$arch.tar.gz ./
+
       ;;
   esac
 
@@ -156,7 +152,7 @@ function main() {
   build "$target" "$arch" "$builddir" "$prefix"
   [[ $? == 0 ]] || return 1
   if [[ $build_only -eq 0 ]]; then
-    package "$target" "$builddir" "$prefix"
+    package "$target" "$arch" "$builddir" "$prefix"
   fi
 }
 
