@@ -103,7 +103,7 @@ function package() {
 
       echo "Creating Distro full packages"
       fpm -v "${RELEASE_VERSION}" --epoch 1 -f -s dir -t rpm -n orchestrator-agent -C $builddir/orchestrator-agent --prefix=/ .
-      fpm -v "${RELEASE_VERSION}" --epoch 1 -f -s dir -t deb -a "$target-$arch" -n orchestrator-agent -C $builddir/orchestrator-agent --prefix=/ --deb-no-default-config-files .
+      fpm -v "${RELEASE_VERSION}" --epoch 1 -f -s dir -t deb -a "$arch" -n orchestrator-agent -C $builddir/orchestrator-agent --prefix=/ --deb-no-default-config-files .
 
       cd $TOPDIR
       ;;
