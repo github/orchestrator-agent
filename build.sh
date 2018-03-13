@@ -4,7 +4,7 @@
 #
 # Requires fpm: https://github.com/jordansissel/fpm
 #
-set -e
+set -xe
 
 RELEASE_VERSION=$(cat RELEASE_VERSION)
 TOPDIR=/tmp/orchestrator-agent-release
@@ -105,16 +105,10 @@ function package() {
       fpm -v "${RELEASE_VERSION}" --epoch 1 -f -s dir -t deb -n orchestrator-agent -C $builddir/orchestrator-agent --prefix=/ --deb-no-default-config-files .
 
       cd $TOPDIR
-      # rpm packaging -- executable only
-      echo "Creating Distro cli packages"
-      fpm -v "${RELEASE_VERSION}" --epoch 1  -f -s dir -t rpm -n orchestrator-agent-cli -C $builddir/orchestrator-agent-cli --prefix=/ .
-      fpm -v "${RELEASE_VERSION}" --epoch 1  -f -s dir -t deb -n orchestrator-agent-cli -C $builddir/orchestrator-agent-cli --prefix=/ --deb-no-default-config-files .
       ;;
     'darwin')
       echo "Creating Darwin full Package"
       tar -C $builddir/orchestrator-agent -czf $TOPDIR/orchestrator-agent-"${RELEASE_VERSION}"-$target-$arch.tar.gz ./
-      echo "Creating Darwin cli Package"
-      tar -C $builddir/orchestrator-agent-cli -czf $TOPDIR/orchestrator-agent-cli-"${RELEASE_VERSION}"-$target-$arch.tar.gz ./
       ;;
   esac
 

@@ -64,7 +64,7 @@ type Configuration struct {
 	TokenHttpHeader                    string            // If defined, name of HTTP header where token is presented (as alternative to query param)
 }
 
-var Config *Configuration = NewConfiguration()
+var Config = NewConfiguration()
 
 func NewConfiguration() *Configuration {
 	return &Configuration{

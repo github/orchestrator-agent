@@ -3,7 +3,7 @@ orchestrator-agent
 
 MySQL topology agent (daemon)
 
-**orchestrator-agent** is a sub-project of [orchestrator](https://github.com/outbrain/orchestrator).
+**orchestrator-agent** is a sub-project of [orchestrator](https://github.com/github/orchestrator).
 It is a service that runs on MySQL hosts and communicates with *orchestrator*.
 
 **orchestrator-agent** is capable of proving operating system, file system and LVM information to *orchestrator*, as well
@@ -172,7 +172,7 @@ Yes please. **orchestrator-agent** is open to pull-requests. Desired functionali
 the initiation and immediate transfer of backup data via `xtrabackup`. 
 The same can be done via `mysqldump` or `mydumper` etc. 
 
-Authored by [Shlomi Noach](https://github.com/shlomi-noach) at [Outbrain](https://github.com/outbrain)
+Authored by [Shlomi Noach](https://github.com/shlomi-noach) at [GitHub](http://github.com). Previously at [Booking.com](http://booking.com) and [Outbrain](http://outbrain.com)
 
 
 

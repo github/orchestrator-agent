@@ -29,10 +29,10 @@ import (
 	nethttp "net/http"
 
 	"github.com/outbrain/golib/log"
-	"github.com/outbrain/orchestrator-agent/go/agent"
-	"github.com/outbrain/orchestrator-agent/go/config"
-	"github.com/outbrain/orchestrator-agent/go/http"
-	"github.com/outbrain/orchestrator-agent/go/ssl"
+	"github.com/github/orchestrator-agent/go/agent"
+	"github.com/github/orchestrator-agent/go/config"
+	"github.com/github/orchestrator-agent/go/http"
+	"github.com/github/orchestrator-agent/go/ssl"
 )
 
 // Http starts serving HTTP (api/web) requests

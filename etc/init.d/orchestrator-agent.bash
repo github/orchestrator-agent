@@ -3,6 +3,15 @@
 # chkconfig: 345 20 80
 # description: orchestrator-agent daemon
 # processname: orchestrator-agent
+### BEGIN INIT INFO
+# Provides:          orchestrator-agent
+# Required-Start:    $local_fs $syslog
+# Required-Stop:     $local_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start orchestrator-agent daemon
+# Description:       Start orchestrator-agent daemon
+### END INIT INFO
 
 
 # Script credit: http://werxltd.com/wp/2012/01/05/simple-init-d-script-template/

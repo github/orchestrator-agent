@@ -24,9 +24,9 @@ import (
 	"syscall"
 
 	"github.com/outbrain/golib/log"
-	"github.com/outbrain/orchestrator-agent/go/agent"
-	"github.com/outbrain/orchestrator-agent/go/app"
-	"github.com/outbrain/orchestrator-agent/go/config"
+	"github.com/github/orchestrator-agent/go/agent"
+	"github.com/github/orchestrator-agent/go/app"
+	"github.com/github/orchestrator-agent/go/config"
 )
 
 var AppVersion string

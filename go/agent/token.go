@@ -46,7 +46,7 @@ type Token struct {
 	Hash string
 }
 
-var ProcessToken *Token = NewToken()
+var ProcessToken = NewToken()
 
 func NewToken() *Token {
 	return &Token{
