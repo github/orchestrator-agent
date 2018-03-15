@@ -135,7 +135,7 @@ func (this *BinlogCoordinates) PreviousFileCoordinatesBy(offset int) (BinlogCoor
 	if fileNum == 0 {
 		return result, errors.New("Log file number is zero, cannot detect previous file")
 	}
-	newNumStr := fmt.Sprintf("%d", fileNum - offset)
+	newNumStr := fmt.Sprintf("%d", fileNum-offset)
 	newNumStr = strings.Repeat("0", numLen-len(newNumStr)) + newNumStr
 
 	tokens := strings.Split(this.LogFile, ".")
@@ -154,7 +154,7 @@ func (this *BinlogCoordinates) NextFileCoordinates() (BinlogCoordinates, error) 
 	result := BinlogCoordinates{LogPos: 0, Type: this.Type}
 
 	fileNum, numLen := this.FileNumber()
-	newNumStr := fmt.Sprintf("%d", fileNum + 1)
+	newNumStr := fmt.Sprintf("%d", fileNum+1)
 	newNumStr = strings.Repeat("0", numLen-len(newNumStr)) + newNumStr
 
 	tokens := strings.Split(this.LogFile, ".")

@@ -15,7 +15,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     config.vm.box = BOX
     config.vm.box_download_insecure = true
     config.vm.box_check_update = false
-    config.vm.synced_folder '.', '/orchestrator-agent', type: 'rsync', rsync__auto: true
+    config.vm.synced_folder '.', '/orchestrator-agent'
+    #, type: 'rsync', rsync__auto: true
 
     config.vm.hostname = "orchestrator-agent"
     config.vm.network "private_network", ip: "192.168.57.211", virtualbox__inet: true
