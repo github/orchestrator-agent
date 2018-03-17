@@ -343,7 +343,7 @@ func Hostname() (string, error) {
 }
 
 func LogicalVolumes(volumeName string, filterPattern string) ([]LogicalVolume, error) {
-	output, err := commandOutput(sudoCmd(fmt.Sprintf("lvs --noheading -o lv_name,vg_name,lv_path,snap_percent %s", volumeName)))
+	output, err := commandOutput(sudoCmd(config.Config.LogicalVolumesCommand + " " + volumeName))
 	tokens, err := outputTokens(`[ \t]+`, output, err)
 	if err != nil {
 		return nil, err
@@ -392,7 +392,7 @@ func GetMount(mountPoint string) (Mount, error) {
 		IsMounted: false,
 	}
 
-	output, err := commandOutput(fmt.Sprintf("grep %s /etc/mtab", mountPoint))
+	output, err := commandOutput(sudoCmd(fmt.Sprintf(config.Config.GetMountCommand, mountPoint)))
 	tokens, err := outputTokens(`[ \t]+`, output, err)
 	if err != nil {
 		// when grep does not find rows, it returns an error. So this is actually OK
@@ -400,14 +400,16 @@ func GetMount(mountPoint string) (Mount, error) {
 	}
 
 	for _, lineTokens := range tokens {
-		mount.IsMounted = true
-		mount.Device = lineTokens[0]
-		mount.Path = lineTokens[1]
-		mount.FileSystem = lineTokens[2]
-		mount.LVPath, _ = GetLogicalVolumePath(mount.Device)
-		mount.DiskUsage, _ = DiskUsage(mountPoint)
-		mount.MySQLDataPath, _ = HeuristicMySQLDataPath(mountPoint)
-		mount.MySQLDiskUsage, _ = DiskUsage(mount.MySQLDataPath)
+		if len(lineTokens) >= 3 {
+			mount.IsMounted = true
+			mount.Device = lineTokens[0]
+			mount.Path = lineTokens[1]
+			mount.FileSystem = lineTokens[2]
+			mount.LVPath, _ = GetLogicalVolumePath(mount.Device)
+			mount.DiskUsage, _ = DiskUsage(mountPoint)
+			mount.MySQLDataPath, _ = HeuristicMySQLDataPath(mountPoint)
+			mount.MySQLDiskUsage, _ = DiskUsage(mount.MySQLDataPath)
+		}
 	}
 	return mount, nil
 }
@@ -429,7 +431,7 @@ func MountLV(mountPoint string, volumeName string) (Mount, error) {
 	if fsType == "xfs" {
 		mountOptions = "-o nouuid"
 	}
-	_, err = commandOutput(sudoCmd(fmt.Sprintf("mount %s %s %s", mountOptions, volumeName, mountPoint)))
+	_, err = commandOutput(sudoCmd(fmt.Sprintf(config.Config.MountLVCommand, mountOptions, volumeName, mountPoint)))
 	if err != nil {
 		return mount, err
 	}
@@ -438,7 +440,7 @@ func MountLV(mountPoint string, volumeName string) (Mount, error) {
 }
 
 func RemoveLV(volumeName string) error {
-	_, err := commandOutput(sudoCmd(fmt.Sprintf("lvremove --force %s", volumeName)))
+	_, err := commandOutput(sudoCmd(fmt.Sprintf(config.Config.RemoveLVCommand, volumeName)))
 	return err
 }
 
@@ -452,7 +454,7 @@ func Unmount(mountPoint string) (Mount, error) {
 		Path:      mountPoint,
 		IsMounted: false,
 	}
-	_, err := commandOutput(sudoCmd(fmt.Sprintf("umount %s", mountPoint)))
+	_, err := commandOutput(sudoCmd(fmt.Sprintf(config.Config.UnmountCommand, mountPoint)))
 	if err != nil {
 		return mount, err
 	}
@@ -520,8 +522,8 @@ func GetMySQLDataDirAvailableDiskSpace() (int64, error) {
 }
 
 // PostCopy executes a post-copy command -- after LVM copy is done, before service starts. Some cleanup may go here.
-func PostCopy() error {
-	_, err := commandOutput(config.Config.PostCopyCommand)
+func PostCopy(sourceHost string) error {
+	_, err := commandOutput(sudoCmd(config.Config.PostCopyCommand + " " + sourceHost))
 	return err
 }
 

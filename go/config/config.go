@@ -28,6 +28,11 @@ type Configuration struct {
 	SnapshotMountPoint                 string            // The single, agreed-upon mountpoint for logical volume snapshots
 	ContinuousPollSeconds              uint              // Poll interval for continuous operation
 	ResubmitAgentIntervalMinutes       uint              // Poll interval for resubmitting this agent on orchestrator agents API
+	LogicalVolumesCommand              string            // Command which list logical volumes, default implementation used lvs
+	GetMountCommand                    string            // Command which get mount point parameters by mount point name, default implementation over cat %s/etc/mtab
+	UnmountCommand                     string            // Command which unmount current mount point, default implementation just execute `umount %s`
+	MountLVCommand                     string            // Command which mount selected snapshot into mount point
+	RemoveLVCommand                    string            // Command which remove selected snapshot from disk
 	CreateSnapshotCommand              string            // Command which creates a snapshot logical volume. It's a "do it yourself" implementation
 	AvailableLocalSnapshotHostsCommand string            // Command which returns list of hosts (one host per line) with available snapshots in local datacenter
 	AvailableSnapshotHostsCommand      string            // Command which returns list of hosts (one host per line) with available snapshots in any datacenter
@@ -72,6 +77,11 @@ func NewConfiguration() *Configuration {
 		ContinuousPollSeconds:              60,
 		ResubmitAgentIntervalMinutes:       60,
 		CreateSnapshotCommand:              "",
+		LogicalVolumesCommand:              "lvs --noheading -o lv_name,vg_name,lv_path,snap_percent",
+		GetMountCommand:                    "grep %s /etc/mtab",
+		UnmountCommand:						"umount %s",
+		MountLVCommand:                     "mount %s %s %s",
+		RemoveLVCommand:                    "lvremove --force %s",
 		AvailableLocalSnapshotHostsCommand: "",
 		AvailableSnapshotHostsCommand:      "",
 		SnapshotVolumesFilter:              "",

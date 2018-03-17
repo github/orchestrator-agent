@@ -96,6 +96,11 @@ The following is a complete list of configuration parameters:
 * `SnapshotMountPoint`                 (string), a known mountpoint onto which a `mount` command will mount snapshot volumes
 * `ContinuousPollSeconds`              (uint), internal clocking interval (default 60 seconds)
 * `ResubmitAgentIntervalMinutes`       (uint), interval at which the agent re-submits itself to *orchestrator* daemon
+* `LogicalVolumesCommand`              (string), command which list logical volumes, default implementation used lvs
+* `GetMountCommand`                    (string), command which get mount point parameters by mount point name, default implementation over cat /etc/mtab
+* `UnmountCommand`                     (string), command which unmount current mount point, default implementation just execute umount
+* `MountLVCommand`                     (string), command which mount selected snapshot, default implementation execute mount selected LVM snapshot 
+* `RemoveLVCommand`                    (string), command which remove selected snapshot, default implementation execute lvremove selected LVM snapshot 
 * `CreateSnapshotCommand`              (string), command which creates new LVM snapshot of MySQL data
 * `AvailableLocalSnapshotHostsCommand` (string), command which returns list of hosts in local DC on which recent snapshots are available
 * `AvailableSnapshotHostsCommand`      (string), command which returns list of hosts in all DCs on which recent snapshots are available
@@ -127,6 +132,8 @@ An example configuration file may be:
     "AgentsServer": "https://my.orchestrator.daemon:3001",
     "ContinuousPollSeconds" : 60,
     "ResubmitAgentIntervalMinutes": 60,
+    "LogicalVolumesCommand": "lvs --noheading -o lv_name,vg_name,lv_path,snap_percent",
+    "GetMountCommand":       "grep %s /etc/mtab", 
     "CreateSnapshotCommand":                "/path/to/snapshot-command.bash",
     "AvailableLocalSnapshotHostsCommand":   "/path/to/snapshot-local-availability-command.bash",
     "AvailableSnapshotHostsCommand":        "/path/to/snapshot-availability-command.bash",

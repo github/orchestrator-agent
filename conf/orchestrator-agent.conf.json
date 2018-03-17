@@ -4,6 +4,8 @@
     "AgentsServerPort": ":3001",
     "ContinuousPollSeconds" : 60,
     "ResubmitAgentIntervalMinutes": 60,
+    "LogicalVolumesCommand": "lvs --noheading -o lv_name,vg_name,lv_path,snap_percent",
+    "GetMountCommand": "grep %s /etc/mtab",
     "CreateSnapshotCommand": "echo 'no action'",
     "AvailableLocalSnapshotHostsCommand": "echo 127.0.0.1",
     "AvailableSnapshotHostsCommand": "echo localhost\n127.0.0.1",
