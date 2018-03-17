@@ -68,9 +68,9 @@ elif [[ -e /etc/debian_version ]]; then
   # All the project dependencies to build
   sudo apt-get -y install ruby-dev gcc git rubygems rpm jq make
   # Jump though some hoops to get a non-decrepit version of golang
-  sudo apt-get remove golang-go
+  sudo apt-get purge -y golang-go
   cd /tmp
-  wget --quiet "https://redirector.gvt1.com/edgedl/go/go1.9.4.linux-amd64.tar.gz"
+  wget -c --quiet "https://redirector.gvt1.com/edgedl/go/go1.9.4.linux-amd64.tar.gz"
   sudo tar -C /usr/local -xzf go1.9.4.linux-amd64.tar.gz
   echo "PATH=$PATH:/usr/local/go/bin" | sudo tee -a /etc/environment
   export PATH="PATH=$PATH:/usr/local/go/bin"
@@ -94,7 +94,8 @@ elif [[ -e /etc/debian_version ]]; then
 
 
   # Go
-  sudo apt-get -y install golang-go
+  ln -nvsf /usr/local/go/bin/go /bin/go
+  ln -nvsf /usr/local/go/bin/gofmt /bin/gofmt
 
   update-rc.d mysql defaults
   /usr/sbin/service mysql start

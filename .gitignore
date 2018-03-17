@@ -1,3 +1,5 @@
 .vagrant/
+.vendor/
+.gopath/
 .idea/
 *.log
