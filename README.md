@@ -101,7 +101,8 @@ The following is a complete list of configuration parameters:
 * `UnmountCommand`                     (string), command which unmount current mount point, default implementation just execute umount
 * `MountLVCommand`                     (string), command which mount selected snapshot, default implementation execute mount selected LVM snapshot 
 * `RemoveLVCommand`                    (string), command which remove selected snapshot, default implementation execute lvremove selected LVM snapshot
-* `MySQLTailErrorLogCommand`           (string), command which return last 20 lines from MySQL @@log_error file  
+* `MySQLTailErrorLogCommand`           (string), command which return last 20 lines from MySQL @@log_error file
+* `GetLogicalVolumeFSTypeCommand`      (string), command which return logical volume filesystem type
 * `CreateSnapshotCommand`              (string), command which creates new LVM snapshot of MySQL data
 * `AvailableLocalSnapshotHostsCommand` (string), command which returns list of hosts in local DC on which recent snapshots are available
 * `AvailableSnapshotHostsCommand`      (string), command which returns list of hosts in all DCs on which recent snapshots are available

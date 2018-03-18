@@ -375,7 +375,7 @@ func GetLogicalVolumePath(volumeName string) (string, error) {
 }
 
 func GetLogicalVolumeFSType(volumeName string) (string, error) {
-	command := fmt.Sprintf("blkid %s", volumeName)
+	command := fmt.Sprintf(config.Config.GetLogicalVolumeFSTypeCommand, volumeName)
 	output, err := commandOutput(sudoCmd(command))
 	lines, err := outputLines(output, err)
 	re := regexp.MustCompile(`TYPE="(.*?)"`)
