@@ -14,6 +14,7 @@ cat <<EOF > /etc/orchestrator-agent.conf.json
     "UnmountCommand":        "${UnmountCommand:-umount %s}",
     "MountLVCommand":        "${MountLVCommand:-mount %s %s %s}",
     "RemoveLVCommand":       "${RemoveLVCommand:-lvremove --force %s}",
+    "MySQLTailErrorLogCommand": "${MySQLTailErrorLogCommand:-tail -n 20 \$(mysql -B --skip-column-names -e \"SELECT @@log_error\")}",
 
     "CreateSnapshotCommand": "${CreateSnapshotCommand:-echo \'no action\'}",
     "AvailableLocalSnapshotHostsCommand": "${AvailableLocalSnapshotHostsCommand:-echo 127.0.0.1}",

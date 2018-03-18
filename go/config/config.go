@@ -33,6 +33,7 @@ type Configuration struct {
 	UnmountCommand                     string            // Command which unmount current mount point, default implementation just execute `umount %s`
 	MountLVCommand                     string            // Command which mount selected snapshot into mount point
 	RemoveLVCommand                    string            // Command which remove selected snapshot from disk
+	MySQLTailErrorLogCommand           string            // Command which return last 20 lines from @@log_error file
 	CreateSnapshotCommand              string            // Command which creates a snapshot logical volume. It's a "do it yourself" implementation
 	AvailableLocalSnapshotHostsCommand string            // Command which returns list of hosts (one host per line) with available snapshots in local datacenter
 	AvailableSnapshotHostsCommand      string            // Command which returns list of hosts (one host per line) with available snapshots in any datacenter
@@ -79,9 +80,10 @@ func NewConfiguration() *Configuration {
 		CreateSnapshotCommand:              "",
 		LogicalVolumesCommand:              "lvs --noheading -o lv_name,vg_name,lv_path,snap_percent",
 		GetMountCommand:                    "grep %s /etc/mtab",
-		UnmountCommand:						"umount %s",
+		UnmountCommand:                     "umount %s",
 		MountLVCommand:                     "mount %s %s %s",
 		RemoveLVCommand:                    "lvremove --force %s",
+		MySQLTailErrorLogCommand:           `tail -n 20 $(egrep "log[-_]error" /etc/my.cnf | cut -d "=" -f 2)`,
 		AvailableLocalSnapshotHostsCommand: "",
 		AvailableSnapshotHostsCommand:      "",
 		SnapshotVolumesFilter:              "",

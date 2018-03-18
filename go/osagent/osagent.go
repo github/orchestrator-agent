@@ -545,7 +545,12 @@ func HeuristicMySQLDataPath(mountPoint string) (string, error) {
 		if datadir == "" {
 			return "", errors.New("Cannot detect MySQL datadir")
 		}
-		datadir = re.FindStringSubmatch(datadir)[1]
+		matches := re.FindStringSubmatch(datadir)
+		if len(matches) > 1 {
+			datadir = re.FindStringSubmatch(datadir)[1]
+		} else {
+			return "", errors.New("Cannot detect MySQL datadir")
+		}
 	}
 }
 
