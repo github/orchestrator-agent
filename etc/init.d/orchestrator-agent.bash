@@ -26,6 +26,11 @@ DESC="orchestrator-agent: MySQL management agent"
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
 
+# This files can be used to inject pre-service execution
+# scripts, such as exporting variables or whatever. It's yours!
+[ -f /etc/default/orchestrator-agent ] && . /etc/default/orchestrator-agent
+[ -f /etc/orchestrator-agent_profile ] && . /etc/orchestrator-agent_profile
+
 case "$1" in
   start)
     printf "%-50s" "Starting $NAME..."
