@@ -296,7 +296,7 @@ func commandOutput(commandText string) ([]byte, error) {
 	if err != nil {
 		return nil, log.Errore(err)
 	}
-
+	log.Debugf("commandOutput: %s", outputBytes)
 	return outputBytes, nil
 }
 

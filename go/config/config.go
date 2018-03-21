@@ -72,6 +72,7 @@ type Configuration struct {
 }
 
 var Config = NewConfiguration()
+var configFileNames []string
 
 func NewConfiguration() *Configuration {
 	return &Configuration{
@@ -144,7 +145,13 @@ func Read(file_names ...string) *Configuration {
 	for _, file_name := range file_names {
 		read(file_name)
 	}
+	configFileNames = file_names
 	return Config
+}
+
+// Reload
+func Reload() *Configuration {
+	return Read(configFileNames...)
 }
 
 // ForceRead reads configuration from given file name or bails out if it fails
