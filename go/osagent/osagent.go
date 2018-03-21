@@ -568,7 +568,7 @@ func AvailableSnapshots(requireLocal bool) ([]string, error) {
 }
 
 func MySQLErrorLogTail() ([]string, error) {
-	output, err := commandOutput(sudoCmd(`tail -n 20 $(egrep "log[-_]error" /etc/my.cnf | cut -d "=" -f 2)`))
+	output, err := commandOutput(sudoCmd(config.Config.MySQLTailErrorLogCommand))
 	tail, err := outputLines(output, err)
 	return tail, err
 }
