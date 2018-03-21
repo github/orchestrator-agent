@@ -30,6 +30,7 @@ SCRIPTNAME=/etc/init.d/$NAME
 # scripts, such as exporting variables or whatever. It's yours!
 [ -f /etc/default/orchestrator-agent ] && . /etc/default/orchestrator-agent
 [ -f /etc/orchestrator-agent_profile ] && . /etc/orchestrator-agent_profile
+[ -f /etc/profile.d/orchestrator-agent ] && . /etc/profile.d/orchestrator-agent
 
 case "$1" in
   start)
