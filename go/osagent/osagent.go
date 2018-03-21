@@ -32,7 +32,6 @@ import (
 	"github.com/outbrain/golib/log"
 )
 
-
 var activeCommands = make(map[string]*exec.Cmd)
 
 // LogicalVolume describes an LVM volume
@@ -587,16 +586,15 @@ func ReceiveMySQLSeedData(seedId string) error {
 		return log.Errore(err)
 	}
 	var receiveCmd string
-	if strings.Contains(config.Config.ReceiveSeedDataCommand,"%s") {
+	if strings.Contains(config.Config.ReceiveSeedDataCommand, "%s") {
 		receiveCmd = fmt.Sprintf(config.Config.ReceiveSeedDataCommand, directory, config.Config.SeedTransferPort)
 	} else {
 		//old behavior backwards
 		receiveCmd = fmt.Sprintf("%s %s %d", config.Config.ReceiveSeedDataCommand, directory, config.Config.SeedTransferPort)
 	}
 
-
 	err = commandRun(
-		receiveCmd,
+		sudoCmd(receiveCmd),
 		func(cmd *exec.Cmd) {
 			activeCommands[seedId] = cmd
 			log.Debug("ReceiveMySQLSeedData command completed")
@@ -613,7 +611,7 @@ func SendMySQLSeedData(targetHostname string, directory string, seedId string) e
 		return log.Error("Empty directory in SendMySQLSeedData")
 	}
 	var sendCmd string
-	if strings.Contains(config.Config.SendSeedDataCommand,"%s") {
+	if strings.Contains(config.Config.SendSeedDataCommand, "%s") {
 		sendCmd = fmt.Sprintf(
 			config.Config.SendSeedDataCommand,
 			directory, targetHostname, config.Config.SeedTransferPort,
@@ -625,7 +623,7 @@ func SendMySQLSeedData(targetHostname string, directory string, seedId string) e
 		)
 	}
 	err := commandRun(
-		sendCmd,
+		sudoCmd(sendCmd),
 		func(cmd *exec.Cmd) {
 			activeCommands[seedId] = cmd
 			log.Debug("SendMySQLSeedData command completed")
