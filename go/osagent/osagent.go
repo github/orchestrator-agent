@@ -32,9 +32,6 @@ import (
 	"github.com/outbrain/golib/log"
 )
 
-const (
-	SeedTransferPort = 21234
-)
 
 var activeCommands = make(map[string]*exec.Cmd)
 
@@ -257,11 +254,6 @@ type Mount struct {
 func init() {
 	osPath := os.Getenv("PATH")
 	os.Setenv("PATH", fmt.Sprintf("%s:/usr/sbin:/usr/bin:/sbin:/bin", osPath))
-}
-
-func commandSplit(commandText string) (string, []string) {
-	tokens := regexp.MustCompile(`[ ]+`).Split(strings.TrimSpace(commandText), -1)
-	return tokens[0], tokens[1:]
 }
 
 func execCmd(commandText string) (*exec.Cmd, string, error) {
@@ -594,9 +586,17 @@ func ReceiveMySQLSeedData(seedId string) error {
 	if err != nil {
 		return log.Errore(err)
 	}
+	var receiveCmd string
+	if strings.Contains(config.Config.ReceiveSeedDataCommand,"%s") {
+		receiveCmd = fmt.Sprintf(config.Config.ReceiveSeedDataCommand, directory, config.Config.SeedTransferPort)
+	} else {
+		//old behavior backwards
+		receiveCmd = fmt.Sprintf("%s %s %d", config.Config.ReceiveSeedDataCommand, directory, config.Config.SeedTransferPort)
+	}
+
 
 	err = commandRun(
-		fmt.Sprintf("%s %s %d", config.Config.ReceiveSeedDataCommand, directory, SeedTransferPort),
+		receiveCmd,
 		func(cmd *exec.Cmd) {
 			activeCommands[seedId] = cmd
 			log.Debug("ReceiveMySQLSeedData command completed")
@@ -612,7 +612,20 @@ func SendMySQLSeedData(targetHostname string, directory string, seedId string) e
 	if directory == "" {
 		return log.Error("Empty directory in SendMySQLSeedData")
 	}
-	err := commandRun(fmt.Sprintf("%s %s %s %d", config.Config.SendSeedDataCommand, directory, targetHostname, SeedTransferPort),
+	var sendCmd string
+	if strings.Contains(config.Config.SendSeedDataCommand,"%s") {
+		sendCmd = fmt.Sprintf(
+			config.Config.SendSeedDataCommand,
+			directory, targetHostname, config.Config.SeedTransferPort,
+		)
+	} else {
+		sendCmd = fmt.Sprintf(
+			"%s %s %s %d",
+			config.Config.SendSeedDataCommand, directory, targetHostname, config.Config.SeedTransferPort,
+		)
+	}
+	err := commandRun(
+		sendCmd,
 		func(cmd *exec.Cmd) {
 			activeCommands[seedId] = cmd
 			log.Debug("SendMySQLSeedData command completed")

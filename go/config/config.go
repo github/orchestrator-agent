@@ -52,6 +52,7 @@ type Configuration struct {
 	AgentsServer                       string            // HTTP address of the orchestrator agents server
 	AgentsServerPort                   string            // HTTP port of the orchestrator agents server
 	HTTPPort                           uint              // HTTP port on which this service listens
+	SeedTransferPort                   uint              // TCP port for data seed transfer
 	HTTPAuthUser                       string            // Username for HTTP Basic authentication (blank disables authentication)
 	HTTPAuthPassword                   string            // Password for HTTP Basic authentication
 	UseSSL                             bool              // If true, service will serve HTTPS only
@@ -103,6 +104,7 @@ func NewConfiguration() *Configuration {
 		AgentsServer:                       "",
 		AgentsServerPort:                   "",
 		HTTPPort:                           3002,
+		SeedTransferPort:                   21234,
 		HTTPAuthUser:                       "",
 		HTTPAuthPassword:                   "",
 		UseSSL:                             false,

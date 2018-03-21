@@ -118,6 +118,7 @@ The following is a complete list of configuration parameters:
 * `PostCopyCommand`                    (string), command to be executed after the seed is complete (cleanup)
 * `AgentsServer`                       (string), **Required** URL of your **orchestrator** daemon, You must add the port the orchestrator server expects to talk to agents to (see below, e.g. `https://my.orchestrator.daemon:3001`)
 * `HTTPPort`                           (uint),   Port to listen on  
+* `SeedTransferPort`                   (uint),   TCP Port to seed data transfer  
 * `HTTPAuthUser`                       (string), Basic auth user (default empty, meaning no auth)
 * `HTTPAuthPassword`                   (string), Basic auth password
 * `UseSSL`                             (bool),   If `true` then serving via `https` protocol
