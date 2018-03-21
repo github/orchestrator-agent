@@ -65,21 +65,39 @@ case "$1" in
     PID=$(cat $PIDFILE)
     cd $DAEMON_PATH
     if [ -f $PIDFILE ]; then
-      kill -HUP $PID
-      printf "%s\n" "Ok"
+      kill -TERM $PID
       rm -f $PIDFILE
+      # Wait for orchestrator to stop otherwise restart may fail.
+      # (The newly restarted process may be unable to bind to the
+      # currently bound socket.)
+      while ps -p $PID >/dev/null 2>&1; do
+        printf "."
+        sleep 1
+      done
+      printf "\n"
+      printf "Ok\n"
     else
       printf "%s\n" "pidfile not found"
       exit 1
     fi
   ;;
-  
   restart)
     $0 stop
     $0 start
   ;;
-  
+  reload)
+    printf "%-50s" "Reloading $NAME"
+    PID=$(cat $PIDFILE)
+    cd $DAEMON_PATH
+    if [ -f $PIDFILE ]; then
+      kill -HUP $PID
+      printf "%s\n" "Ok"
+    else
+      printf "%s\n" "pidfile not found"
+      exit 1
+    fi
+	;;
   *)
-    echo "Usage: $0 {status|start|stop|restart}"
+    echo "Usage: $0 {status|start|stop|restart|reload}"
     exit 1
 esac
