@@ -514,7 +514,13 @@ func GetMySQLDataDirAvailableDiskSpace() (int64, error) {
 
 // PostCopy executes a post-copy command -- after LVM copy is done, before service starts. Some cleanup may go here.
 func PostCopy(sourceHost string) error {
-	_, err := commandOutput(sudoCmd(config.Config.PostCopyCommand + " " + sourceHost))
+	var postCopyCmd string
+	if strings.Contains(config.Config.PostCopyCommand,"%s") {
+		postCopyCmd = fmt.Sprintf(config.Config.PostCopyCommand, sourceHost)
+	} else {
+		postCopyCmd = config.Config.PostCopyCommand+" "+sourceHost
+	}
+	_, err := commandOutput(sudoCmd(postCopyCmd))
 	return err
 }
 
