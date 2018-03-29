@@ -36,19 +36,17 @@ func acceptSignal() {
 
 	// Block until a signal is received.
 	signal.Notify(c, syscall.SIGHUP, syscall.SIGKILL, syscall.SIGTERM, syscall.SIGTERM)
-	go func() {
-		for sig := range c {
-			switch sig {
-			case syscall.SIGHUP:
-				log.Infof("Received SIGHUP. Reloading configuration")
-				config.Reload()
-			case syscall.SIGTERM, syscall.SIGKILL, syscall.SIGINT:
-				log.Infof("Received %s. Shutting down orchestrator-agent", sig.String())
-				// probably should poke other go routines to stop cleanly here ...
-				os.Exit(0)
-			}
+	for sig := range c {
+		switch sig {
+		case syscall.SIGHUP:
+			log.Infof("Received SIGHUP. Reloading configuration")
+			config.Reload()
+		case syscall.SIGTERM, syscall.SIGKILL, syscall.SIGINT:
+			log.Infof("Received %s. Shutting down orchestrator-agent", sig.String())
+			// probably should poke other go routines to stop cleanly here ...
+			os.Exit(0)
 		}
-	}()
+	}
 }
 
 // main is the application's entry point. It will either spawn a CLI or HTTP itnerfaces.
