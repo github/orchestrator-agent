@@ -68,7 +68,7 @@ case "$1" in
     if [ -f $PIDFILE ]; then
       kill -TERM $PID
       rm -f $PIDFILE
-      # Wait for orchestrator to stop otherwise restart may fail.
+      # Wait for orchestrator-agent to stop otherwise restart may fail.
       # (The newly restarted process may be unable to bind to the
       # currently bound socket.)
       while ps -p $PID >/dev/null 2>&1; do

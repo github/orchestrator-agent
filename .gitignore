@@ -2,4 +2,6 @@
 .vendor/
 .gopath/
 .idea/
+*.deb
+*.pcap
 *.log
