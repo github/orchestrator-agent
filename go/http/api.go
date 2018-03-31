@@ -363,11 +363,10 @@ func (this *HttpAPI) PostCopy(params martini.Params, r render.Render, req *http.
 	if err := this.validateToken(r, req); err != nil {
 		return
 	}
-
-	if params["sourceHost"]=="" {
-		params["sourceHost"] = req.Form.Get("sourceHost")
+	qs := req.URL.Query()
+	if sourceHost, exists := params["sourceHost"]; !exists || sourceHost=="" {
+		params["sourceHost"] = qs.Get("sourceHost")
 	}
-
 	err := osagent.PostCopy(params["sourceHost"])
 	if err != nil {
 		r.JSON(500, &APIResponse{Code: ERROR, Message: err.Error()})
