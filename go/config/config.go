@@ -28,6 +28,13 @@ type Configuration struct {
 	SnapshotMountPoint                 string            // The single, agreed-upon mountpoint for logical volume snapshots
 	ContinuousPollSeconds              uint              // Poll interval for continuous operation
 	ResubmitAgentIntervalMinutes       uint              // Poll interval for resubmitting this agent on orchestrator agents API
+	LogicalVolumesCommand              string            // Command which list logical volumes, default implementation used lvs
+	GetMountCommand                    string            // Command which get mount point parameters by mount point name, default implementation over cat %s/etc/mtab
+	UnmountCommand                     string            // Command which unmount current mount point, default implementation just execute `umount %s`
+	MountLVCommand                     string            // Command which mount selected snapshot into mount point
+	RemoveLVCommand                    string            // Command which remove selected snapshot from disk
+	MySQLTailErrorLogCommand           string            // Command which return last 20 lines from @@log_error file
+	GetLogicalVolumeFSTypeCommand      string            // Command which return logical volume filesystem type
 	CreateSnapshotCommand              string            // Command which creates a snapshot logical volume. It's a "do it yourself" implementation
 	AvailableLocalSnapshotHostsCommand string            // Command which returns list of hosts (one host per line) with available snapshots in local datacenter
 	AvailableSnapshotHostsCommand      string            // Command which returns list of hosts (one host per line) with available snapshots in any datacenter
@@ -45,6 +52,7 @@ type Configuration struct {
 	AgentsServer                       string            // HTTP address of the orchestrator agents server
 	AgentsServerPort                   string            // HTTP port of the orchestrator agents server
 	HTTPPort                           uint              // HTTP port on which this service listens
+	SeedTransferPort                   uint              // TCP port for data seed transfer
 	HTTPAuthUser                       string            // Username for HTTP Basic authentication (blank disables authentication)
 	HTTPAuthPassword                   string            // Password for HTTP Basic authentication
 	UseSSL                             bool              // If true, service will serve HTTPS only
@@ -65,6 +73,7 @@ type Configuration struct {
 }
 
 var Config = NewConfiguration()
+var configFileNames []string
 
 func NewConfiguration() *Configuration {
 	return &Configuration{
@@ -72,6 +81,13 @@ func NewConfiguration() *Configuration {
 		ContinuousPollSeconds:              60,
 		ResubmitAgentIntervalMinutes:       60,
 		CreateSnapshotCommand:              "",
+		LogicalVolumesCommand:              "lvs --noheading -o lv_name,vg_name,lv_path,snap_percent",
+		GetMountCommand:                    "grep %s /etc/mtab",
+		UnmountCommand:                     "umount %s",
+		MountLVCommand:                     "mount %s %s %s",
+		RemoveLVCommand:                    "lvremove --force %s",
+		MySQLTailErrorLogCommand:           `tail -n 20 $(egrep "log[-_]error" /etc/my.cnf | cut -d "=" -f 2)`,
+		GetLogicalVolumeFSTypeCommand:      "blkid %s",
 		AvailableLocalSnapshotHostsCommand: "",
 		AvailableSnapshotHostsCommand:      "",
 		SnapshotVolumesFilter:              "",
@@ -88,6 +104,7 @@ func NewConfiguration() *Configuration {
 		AgentsServer:                       "",
 		AgentsServerPort:                   "",
 		HTTPPort:                           3002,
+		SeedTransferPort:                   21234,
 		HTTPAuthUser:                       "",
 		HTTPAuthPassword:                   "",
 		UseSSL:                             false,
@@ -130,7 +147,13 @@ func Read(file_names ...string) *Configuration {
 	for _, file_name := range file_names {
 		read(file_name)
 	}
+	configFileNames = file_names
 	return Config
+}
+
+// Reload
+func Reload() *Configuration {
+	return Read(configFileNames...)
 }
 
 // ForceRead reads configuration from given file name or bails out if it fails

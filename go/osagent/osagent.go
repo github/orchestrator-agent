@@ -32,10 +32,6 @@ import (
 	"github.com/outbrain/golib/log"
 )
 
-const (
-	SeedTransferPort = 21234
-)
-
 var activeCommands = make(map[string]*exec.Cmd)
 
 // LogicalVolume describes an LVM volume
@@ -259,11 +255,6 @@ func init() {
 	os.Setenv("PATH", fmt.Sprintf("%s:/usr/sbin:/usr/bin:/sbin:/bin", osPath))
 }
 
-func commandSplit(commandText string) (string, []string) {
-	tokens := regexp.MustCompile(`[ ]+`).Split(strings.TrimSpace(commandText), -1)
-	return tokens[0], tokens[1:]
-}
-
 func execCmd(commandText string) (*exec.Cmd, string, error) {
 	commandBytes := []byte(commandText)
 	tmpFile, err := ioutil.TempFile("", "orchestrator-agent-cmd-")
@@ -296,7 +287,7 @@ func commandOutput(commandText string) ([]byte, error) {
 	if err != nil {
 		return nil, log.Errore(err)
 	}
-
+	log.Debugf("commandOutput: %s", outputBytes)
 	return outputBytes, nil
 }
 
@@ -343,7 +334,7 @@ func Hostname() (string, error) {
 }
 
 func LogicalVolumes(volumeName string, filterPattern string) ([]LogicalVolume, error) {
-	output, err := commandOutput(sudoCmd(fmt.Sprintf("lvs --noheading -o lv_name,vg_name,lv_path,snap_percent %s", volumeName)))
+	output, err := commandOutput(sudoCmd(config.Config.LogicalVolumesCommand + " " + volumeName))
 	tokens, err := outputTokens(`[ \t]+`, output, err)
 	if err != nil {
 		return nil, err
@@ -351,15 +342,17 @@ func LogicalVolumes(volumeName string, filterPattern string) ([]LogicalVolume, e
 
 	logicalVolumes := []LogicalVolume{}
 	for _, lineTokens := range tokens {
-		logicalVolume := LogicalVolume{
-			Name:      lineTokens[1],
-			GroupName: lineTokens[2],
-			Path:      lineTokens[3],
-		}
-		logicalVolume.SnapshotPercent, err = strconv.ParseFloat(lineTokens[4], 32)
-		logicalVolume.IsSnapshot = (err == nil)
-		if strings.Contains(logicalVolume.Name, filterPattern) {
-			logicalVolumes = append(logicalVolumes, logicalVolume)
+		if len(lineTokens) >= 5 {
+			logicalVolume := LogicalVolume{
+				Name:      lineTokens[1],
+				GroupName: lineTokens[2],
+				Path:      lineTokens[3],
+			}
+			logicalVolume.SnapshotPercent, err = strconv.ParseFloat(lineTokens[4], 32)
+			logicalVolume.IsSnapshot = (err == nil)
+			if strings.Contains(logicalVolume.Name, filterPattern) {
+				logicalVolumes = append(logicalVolumes, logicalVolume)
+			}
 		}
 	}
 	return logicalVolumes, nil
@@ -373,7 +366,7 @@ func GetLogicalVolumePath(volumeName string) (string, error) {
 }
 
 func GetLogicalVolumeFSType(volumeName string) (string, error) {
-	command := fmt.Sprintf("blkid %s", volumeName)
+	command := fmt.Sprintf(config.Config.GetLogicalVolumeFSTypeCommand, volumeName)
 	output, err := commandOutput(sudoCmd(command))
 	lines, err := outputLines(output, err)
 	re := regexp.MustCompile(`TYPE="(.*?)"`)
@@ -390,7 +383,7 @@ func GetMount(mountPoint string) (Mount, error) {
 		IsMounted: false,
 	}
 
-	output, err := commandOutput(fmt.Sprintf("grep %s /etc/mtab", mountPoint))
+	output, err := commandOutput(sudoCmd(fmt.Sprintf(config.Config.GetMountCommand, mountPoint)))
 	tokens, err := outputTokens(`[ \t]+`, output, err)
 	if err != nil {
 		// when grep does not find rows, it returns an error. So this is actually OK
@@ -398,14 +391,16 @@ func GetMount(mountPoint string) (Mount, error) {
 	}
 
 	for _, lineTokens := range tokens {
-		mount.IsMounted = true
-		mount.Device = lineTokens[0]
-		mount.Path = lineTokens[1]
-		mount.FileSystem = lineTokens[2]
-		mount.LVPath, _ = GetLogicalVolumePath(mount.Device)
-		mount.DiskUsage, _ = DiskUsage(mountPoint)
-		mount.MySQLDataPath, _ = HeuristicMySQLDataPath(mountPoint)
-		mount.MySQLDiskUsage, _ = DiskUsage(mount.MySQLDataPath)
+		if len(lineTokens) >= 3 {
+			mount.IsMounted = true
+			mount.Device = lineTokens[0]
+			mount.Path = lineTokens[1]
+			mount.FileSystem = lineTokens[2]
+			mount.LVPath, _ = GetLogicalVolumePath(mount.Device)
+			mount.DiskUsage, _ = DiskUsage(mountPoint)
+			mount.MySQLDataPath, _ = HeuristicMySQLDataPath(mountPoint)
+			mount.MySQLDiskUsage, _ = DiskUsage(mount.MySQLDataPath)
+		}
 	}
 	return mount, nil
 }
@@ -427,7 +422,7 @@ func MountLV(mountPoint string, volumeName string) (Mount, error) {
 	if fsType == "xfs" {
 		mountOptions = "-o nouuid"
 	}
-	_, err = commandOutput(sudoCmd(fmt.Sprintf("mount %s %s %s", mountOptions, volumeName, mountPoint)))
+	_, err = commandOutput(sudoCmd(fmt.Sprintf(config.Config.MountLVCommand, mountOptions, volumeName, mountPoint)))
 	if err != nil {
 		return mount, err
 	}
@@ -436,7 +431,7 @@ func MountLV(mountPoint string, volumeName string) (Mount, error) {
 }
 
 func RemoveLV(volumeName string) error {
-	_, err := commandOutput(sudoCmd(fmt.Sprintf("lvremove --force %s", volumeName)))
+	_, err := commandOutput(sudoCmd(fmt.Sprintf(config.Config.RemoveLVCommand, volumeName)))
 	return err
 }
 
@@ -450,7 +445,7 @@ func Unmount(mountPoint string) (Mount, error) {
 		Path:      mountPoint,
 		IsMounted: false,
 	}
-	_, err := commandOutput(sudoCmd(fmt.Sprintf("umount %s", mountPoint)))
+	_, err := commandOutput(sudoCmd(fmt.Sprintf(config.Config.UnmountCommand, mountPoint)))
 	if err != nil {
 		return mount, err
 	}
@@ -518,8 +513,14 @@ func GetMySQLDataDirAvailableDiskSpace() (int64, error) {
 }
 
 // PostCopy executes a post-copy command -- after LVM copy is done, before service starts. Some cleanup may go here.
-func PostCopy() error {
-	_, err := commandOutput(config.Config.PostCopyCommand)
+func PostCopy(sourceHost string) error {
+	var postCopyCmd string
+	if strings.Contains(config.Config.PostCopyCommand, "%s") {
+		postCopyCmd = fmt.Sprintf(config.Config.PostCopyCommand, sourceHost)
+	} else {
+		postCopyCmd = config.Config.PostCopyCommand + " " + sourceHost
+	}
+	_, err := commandOutput(sudoCmd(postCopyCmd))
 	return err
 }
 
@@ -541,7 +542,12 @@ func HeuristicMySQLDataPath(mountPoint string) (string, error) {
 		if datadir == "" {
 			return "", errors.New("Cannot detect MySQL datadir")
 		}
-		datadir = re.FindStringSubmatch(datadir)[1]
+		matches := re.FindStringSubmatch(datadir)
+		if len(matches) > 1 {
+			datadir = re.FindStringSubmatch(datadir)[1]
+		} else {
+			return "", errors.New("Cannot detect MySQL datadir")
+		}
 	}
 }
 
@@ -559,7 +565,7 @@ func AvailableSnapshots(requireLocal bool) ([]string, error) {
 }
 
 func MySQLErrorLogTail() ([]string, error) {
-	output, err := commandOutput(sudoCmd(`tail -n 20 $(egrep "log[-_]error" /etc/my.cnf | cut -d "=" -f 2)`))
+	output, err := commandOutput(sudoCmd(config.Config.MySQLTailErrorLogCommand))
 	tail, err := outputLines(output, err)
 	return tail, err
 }
@@ -585,9 +591,16 @@ func ReceiveMySQLSeedData(seedId string) error {
 	if err != nil {
 		return log.Errore(err)
 	}
+	var receiveCmd string
+	if strings.Contains(config.Config.ReceiveSeedDataCommand, "%s") {
+		receiveCmd = fmt.Sprintf(config.Config.ReceiveSeedDataCommand, directory, config.Config.SeedTransferPort)
+	} else {
+		//old behavior backwards
+		receiveCmd = fmt.Sprintf("%s %s %d", config.Config.ReceiveSeedDataCommand, directory, config.Config.SeedTransferPort)
+	}
 
 	err = commandRun(
-		fmt.Sprintf("%s %s %d", config.Config.ReceiveSeedDataCommand, directory, SeedTransferPort),
+		sudoCmd(receiveCmd),
 		func(cmd *exec.Cmd) {
 			activeCommands[seedId] = cmd
 			log.Debug("ReceiveMySQLSeedData command completed")
@@ -603,7 +616,20 @@ func SendMySQLSeedData(targetHostname string, directory string, seedId string) e
 	if directory == "" {
 		return log.Error("Empty directory in SendMySQLSeedData")
 	}
-	err := commandRun(fmt.Sprintf("%s %s %s %d", config.Config.SendSeedDataCommand, directory, targetHostname, SeedTransferPort),
+	var sendCmd string
+	if strings.Contains(config.Config.SendSeedDataCommand, "%s") {
+		sendCmd = fmt.Sprintf(
+			config.Config.SendSeedDataCommand,
+			directory, targetHostname, config.Config.SeedTransferPort,
+		)
+	} else {
+		sendCmd = fmt.Sprintf(
+			"%s %s %s %d",
+			config.Config.SendSeedDataCommand, directory, targetHostname, config.Config.SeedTransferPort,
+		)
+	}
+	err := commandRun(
+		sudoCmd(sendCmd),
 		func(cmd *exec.Cmd) {
 			activeCommands[seedId] = cmd
 			log.Debug("SendMySQLSeedData command completed")

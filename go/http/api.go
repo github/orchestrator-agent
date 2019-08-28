@@ -363,7 +363,11 @@ func (this *HttpAPI) PostCopy(params martini.Params, r render.Render, req *http.
 	if err := this.validateToken(r, req); err != nil {
 		return
 	}
-	err := osagent.PostCopy()
+	qs := req.URL.Query()
+	if sourceHost, exists := params["sourceHost"]; !exists || sourceHost=="" {
+		params["sourceHost"] = qs.Get("sourceHost")
+	}
+	err := osagent.PostCopy(params["sourceHost"])
 	if err != nil {
 		r.JSON(500, &APIResponse{Code: ERROR, Message: err.Error()})
 		return
@@ -617,6 +621,7 @@ func (this *HttpAPI) RegisterRequests(m *martini.ClassicMartini) {
 	m.Get("/api/delete-mysql-datadir", this.DeleteMySQLDataDir)
 	m.Get("/api/mysql-datadir-available-space", this.GetMySQLDataDirAvailableDiskSpace)
 	m.Get("/api/post-copy", this.PostCopy)
+	m.Get("/api/post-copy/:sourceHost", this.PostCopy)
 	m.Get("/api/receive-mysql-seed-data/:seedId", this.ReceiveMySQLSeedData)
 	m.Get("/api/send-mysql-seed-data/:targetHost/:seedId", this.SendMySQLSeedData)
 	m.Get("/api/abort-seed/:seedId", this.AbortSeed)
