@@ -559,7 +559,11 @@ func AvailableSnapshots(requireLocal bool) ([]string, error) {
 }
 
 func MySQLErrorLogTail() ([]string, error) {
-	output, err := commandOutput(sudoCmd(`tail -n 20 $(egrep "log[-_]error" /etc/my.cnf | cut -d "=" -f 2)`))
+	mycnf := config.Config.MySQLConfigFileLocation
+
+	command := fmt.Sprintf(`tail -n 20 $(egrep "log[-_]error" %s | cut -d "=" -f 2)`, mycnf)
+
+	output, err := commandOutput(sudoCmd(command))
 	tail, err := outputLines(output, err)
 	return tail, err
 }
