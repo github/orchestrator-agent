@@ -6,13 +6,13 @@ MySQL topology agent (daemon)
 **orchestrator-agent** is a sub-project of [orchestrator](https://github.com/github/orchestrator).
 It is a service that runs on MySQL hosts and communicates with *orchestrator*.
 
-**orchestrator-agent** is capable of proving operating system, file system and LVM information to *orchestrator*, as well
+**orchestrator-agent** is capable of providing operating system, file system and LVM information to *orchestrator*, as well
 as invoke certain commands and scripts.
 
 The primary drive for developing **orchestrator-agent** was [Outbrain](https://github.com/outbrain)'s need for a controlled
 seeding mechanism, where MySQL instances would duplicate onto new/corrupt installations. 
 As such, **orchestrator-agent**'s functionality is tightly coupled with the backup/seed mechanisms used by Outbrain, 
-as described following. Though easily extendible, **orchestrator-agent** was not developed with a general purpose
+as described further below. Though easily extendible, **orchestrator-agent** was not developed with a general purpose
 backup/restore/orchestration capabilities in mind.
 
 Whether or not **orchestrator-agent** is useful to you depends on your needs.
